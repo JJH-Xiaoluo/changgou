@@ -2,10 +2,12 @@ package com.changgou.goods.controller;
 import com.changgou.entity.PageResult;
 import com.changgou.entity.Result;
 import com.changgou.entity.StatusCode;
+import com.changgou.goods.pojo.Goods;
 import com.changgou.goods.service.SpuService;
 import com.changgou.goods.pojo.Spu;
 import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -35,33 +37,32 @@ public class SpuController {
      */
     @GetMapping("/{id}")
     public Result findById(@PathVariable String id){
-        Spu spu = spuService.findById(id);
-        return new Result(true,StatusCode.OK,"查询成功",spu);
+        Goods goods = spuService.findGoodsById(id);
+        return new Result(true,StatusCode.OK,"查询成功",goods);
     }
 
 
     /***
      * 新增数据
-     * @param spu
+     * @param goods
      * @return
      */
     @PostMapping
-    public Result add(@RequestBody Spu spu){
-        spuService.add(spu);
+    public Result add(@RequestBody Goods goods){
+        spuService.add(goods);
         return new Result(true,StatusCode.OK,"添加成功");
     }
 
 
     /***
      * 修改数据
-     * @param spu
+     * @param goods
      * @param id
      * @return
      */
     @PutMapping(value="/{id}")
-    public Result update(@RequestBody Spu spu,@PathVariable String id){
-        spu.setId(id);
-        spuService.update(spu);
+    public Result update(@RequestBody Goods goods,@PathVariable String id){
+        spuService.update(goods);
         return new Result(true,StatusCode.OK,"修改成功");
     }
 
@@ -103,5 +104,50 @@ public class SpuController {
         return new Result(true,StatusCode.OK,"查询成功",pageResult);
     }
 
+    /*
+    * 审核状态并自动上架商品
+    * */
+    @PutMapping("/audit/{id}")
+    public Result audit(@PathVariable("id") String id){
+        spuService.audit(id);
+        return new Result(true,StatusCode.OK,"商品审核成功");
+    }
 
+    /*
+     * 下架商品
+     * */
+    @PutMapping("/pull/{id}")
+    public Result pull(@PathVariable("id") String id){
+        spuService.pull(id);
+        return new Result(true,StatusCode.OK,"商品下架成功");
+    }
+
+    /*
+     * 上架商品
+     * */
+    @PutMapping("/put/{id}")
+    public Result put(@PathVariable("id") String id){
+        spuService.put(id);
+        return new Result(true,StatusCode.OK,"商品上架成功");
+    }
+
+    /*
+    * 还原商品
+    * */
+    @PutMapping("/restore/{id}")
+    @Transactional
+    public Result restore(@PathVariable("id") String id){
+        spuService.restore(id);
+        return new Result(true,StatusCode.OK,"商品还原成功");
+    }
+
+    /*
+     * 物理删除商品
+     * */
+    @DeleteMapping("/realdel/{id}")
+    @Transactional
+    public Result realDel(@PathVariable("id") String id){
+        spuService.realDel(id);
+        return new Result(true,StatusCode.OK,"商品物理删除成功");
+    }
 }
